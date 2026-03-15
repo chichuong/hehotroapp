@@ -17,6 +17,7 @@ import type {
   RecommendationRefreshResponse,
   RecommendationsSummaryResponse,
   RecommendationFilters,
+  AHPAlternativesResponse,
 } from "../types";
 
 export const dssApi = {
@@ -114,6 +115,20 @@ export const dssApi = {
     if (params?.min_price != null) searchParams.append("min_price", String(params.min_price));
     if (params?.max_price != null) searchParams.append("max_price", String(params.max_price));
     const res = await api.get<RankingResponse>(`/dss/ranking?${searchParams.toString()}`);
+    return res.data;
+  },
+
+  // --- AHP Alternatives (5x5 simplified) ---
+  getAHPAlternatives: async (params?: {
+    suburb?: string;
+    min_price?: number;
+    max_price?: number;
+  }): Promise<AHPAlternativesResponse> => {
+    const searchParams = new URLSearchParams();
+    if (params?.suburb) searchParams.append("suburb", params.suburb);
+    if (params?.min_price != null) searchParams.append("min_price", String(params.min_price));
+    if (params?.max_price != null) searchParams.append("max_price", String(params.max_price));
+    const res = await api.get<AHPAlternativesResponse>(`/dss/ahp/alternatives?${searchParams.toString()}`);
     return res.data;
   },
 

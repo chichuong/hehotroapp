@@ -293,6 +293,48 @@ export interface RankingResponse {
   total: number;
 }
 
+// --- AHP Simplified Alternatives (5×5) ---
+
+export interface AHPAlternativeProperty {
+  property_id: number;
+  title: string;
+  address: string;
+  suburb: string | null;
+  price: number | null;
+  rooms: number | null;
+  bedrooms: number | null;
+  year_built: number | null;
+  primary_image: string | null;
+}
+
+export interface AHPAlternativeRow {
+  property_id: number;
+  title: string;
+  values: Record<string, number>; // {criteria_code: normalized_value}
+  ahp_score: number;
+  rank: number;
+  summary_label: string;
+}
+
+export interface AHPCriteriaInfo {
+  code: string;
+  name: string;
+  description: string | null;
+}
+
+export interface AHPAlternativesResponse {
+  criteria: AHPCriteriaInfo[];
+  criteria_weights: CriteriaWeight[];
+  alternatives: AHPAlternativeProperty[];
+  alternative_matrix: AHPAlternativeRow[];
+  ranking: AHPAlternativeRow[];
+  lambda_max: number;
+  ci: number;
+  cr: number;
+  is_consistent: boolean;
+  consistency_message: string;
+}
+
 // --- AI Valuation Types ---
 
 export interface ModelVersion {

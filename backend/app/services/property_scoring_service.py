@@ -16,10 +16,34 @@ CRITERIA_PROPERTY_MAP = {
     "bathrooms": {"attr": "bathrooms", "direction": "positive"},
     "parking": {"attr": "cars", "direction": "positive"},
     "year_built": {"attr": "year_built", "direction": "positive"},
+    # AHP-specific criteria (5 fixed criteria)
+    "rooms": {"attr": "rooms", "direction": "positive"},
+    "distance": {"attr": None, "direction": "inverse"},  # No direct field; handled via placeholder
 }
 
-# Criteria that can be scored from property data
-SCORABLE_CRITERIA_CODES = set(CRITERIA_PROPERTY_MAP.keys())
+# The 5 fixed AHP criteria codes and their config
+AHP_CRITERIA_CODES = ["price", "distance", "rooms", "bedrooms", "year_built"]
+
+# Mapping from AHP criteria code to normalization direction
+AHP_CRITERIA_DIRECTION = {
+    "price": "inverse",       # Giá → lower is better
+    "distance": "inverse",    # Khoảng cách → lower is better
+    "rooms": "positive",      # Số phòng → higher is better
+    "bedrooms": "positive",   # Số phòng ngủ → higher is better
+    "year_built": "positive", # Năm xây dựng → newer is better
+}
+
+# Mapping from AHP code to property attribute
+AHP_CRITERIA_ATTR = {
+    "price": "price",
+    "distance": None,     # Not a direct field; use 0.5 as placeholder
+    "rooms": "rooms",
+    "bedrooms": "bedrooms",
+    "year_built": "year_built",
+}
+
+# Criteria that can be scored from property data (original set)
+SCORABLE_CRITERIA_CODES = set(CRITERIA_PROPERTY_MAP.keys()) - {"distance"}
 
 
 def _get_property_value(prop: Property, attr: str) -> Optional[float]:
@@ -48,9 +72,12 @@ def normalize_property_features(
         mapping = CRITERIA_PROPERTY_MAP.get(code)
         if not mapping:
             continue
+        attr = mapping.get("attr")
+        if not attr:
+            continue
         raw_values[code] = []
         for prop in properties:
-            val = _get_property_value(prop, mapping["attr"])
+            val = _get_property_value(prop, attr)
             if val is not None:
                 raw_values[code].append((prop.id, val))
 
@@ -77,6 +104,68 @@ def normalize_property_features(
                 normalized = 1.0 - normalized
 
             result[prop_id][code] = round(normalized, 6)
+
+    return result
+
+
+def normalize_ahp_alternatives(
+    properties: List[Property],
+) -> Dict[int, Dict[str, float]]:
+    """
+    Normalize property features specifically for the 5-criteria AHP matrix.
+
+    AHP criteria:
+      - price      → lower is better (inverse)
+      - distance   → lower is better (no data → uniform 0.5)
+      - rooms      → higher is better
+      - bedrooms   → higher is better
+      - year_built → higher (newer) is better
+
+    Returns: {property_id: {criteria_code: normalized_value (0-1)}}
+    """
+    if not properties:
+        return {}
+
+    result: Dict[int, Dict[str, float]] = {prop.id: {} for prop in properties}
+
+    for code in AHP_CRITERIA_CODES:
+        attr = AHP_CRITERIA_ATTR.get(code)
+        direction = AHP_CRITERIA_DIRECTION.get(code, "positive")
+
+        if attr is None:
+            # No data available — assign uniform value 0.5
+            for prop in properties:
+                result[prop.id][code] = 0.5
+            continue
+
+        raw: List[Tuple[int, float]] = []
+        for prop in properties:
+            val = _get_property_value(prop, attr)
+            if val is not None:
+                raw.append((prop.id, val))
+
+        if not raw:
+            for prop in properties:
+                result[prop.id][code] = 0.5
+            continue
+
+        vals = [v for _, v in raw]
+        min_val = min(vals)
+        max_val = max(vals)
+        val_range = max_val - min_val
+
+        prop_id_to_norm: Dict[int, float] = {}
+        for prop_id, val in raw:
+            if val_range == 0:
+                normalized = 1.0
+            else:
+                normalized = (val - min_val) / val_range
+            if direction == "inverse":
+                normalized = 1.0 - normalized
+            prop_id_to_norm[prop_id] = round(normalized, 6)
+
+        for prop in properties:
+            result[prop.id][code] = prop_id_to_norm.get(prop.id, 0.5)
 
     return result
 
@@ -117,6 +206,23 @@ def calculate_ahp_property_score(
         total_score += contribution
 
     return round(total_score, 6), breakdown
+
+
+def calculate_ahp_score_from_normalized(
+    normalized_values: Dict[str, float],
+    weights_by_code: Dict[str, float],
+) -> float:
+    """
+    Compute AHP score from normalized values and weights keyed by criteria code.
+
+    Returns: total_score (0-1)
+    """
+    total = 0.0
+    for code in AHP_CRITERIA_CODES:
+        w = weights_by_code.get(code, 0.0)
+        v = normalized_values.get(code, 0.0)
+        total += w * v
+    return round(total, 6)
 
 
 def get_summary_label(score: float) -> str:
