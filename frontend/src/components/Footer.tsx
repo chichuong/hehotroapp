@@ -5,7 +5,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-white font-semibold text-lg mb-3">
-              🏠 BĐS Thông Minh
+            BĐS Thông Minh
             </h3>
             <p className="text-sm">
               Hệ thống hỗ trợ ra quyết định bất động sản thông minh. Giúp bạn

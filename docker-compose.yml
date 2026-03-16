@@ -1,3 +1,4 @@
+# DEPRECATED: Docker is not used for local development. Use local Python + npm setup instead. See README.md.
 version: "3.9"
 
 services:

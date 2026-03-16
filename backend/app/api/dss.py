@@ -382,9 +382,12 @@ def get_recommendations(
     """Get ranked DSS recommendations for the logged-in user."""
     profile = db.query(UserProfile).filter(UserProfile.user_id == user.id).first()
     if not profile:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Bạn chưa tạo hồ sơ nhu cầu. Vui lòng tạo hồ sơ để xem gợi ý.",
+        return RecommendationsResponse(
+            items=[],
+            total=0,
+            page=page,
+            page_size=page_size,
+            total_pages=1,
         )
 
     # Base query: join scores with properties

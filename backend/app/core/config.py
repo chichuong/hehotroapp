@@ -3,7 +3,7 @@ from typing import List
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql://realestate:realestate123@localhost:5432/realestate_db"
+    database_url: str = "sqlite:///./realestate.db"
     secret_key: str = "dev-secret-key-change-in-production"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60

@@ -13,19 +13,23 @@ export default function FavoriteButton({
   className = "",
   size = "md",
 }: FavoriteButtonProps) {
-  const { user } = useAuth();
+  const { isAuthenticated, initialized } = useAuth();
   const [favorited, setFavorited] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!initialized || !isAuthenticated) {
+      setFavorited(false);
+      return;
+    }
+
     favoritesApi
       .check(propertyId)
       .then((res) => setFavorited(res.favorited))
       .catch(() => {});
-  }, [user, propertyId]);
+  }, [initialized, isAuthenticated, propertyId]);
 
-  if (!user) return null;
+  if (!initialized || !isAuthenticated) return null;
 
   const sizeClasses = {
     sm: "w-8 h-8 text-lg",

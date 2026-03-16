@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict
 from datetime import datetime
 
 
@@ -8,7 +8,7 @@ from datetime import datetime
 class AHPMatrixEntryInput(BaseModel):
     criteria_id_row: int
     criteria_id_col: int
-    value: float = Field(..., gt=0, le=9)
+    value: int = Field(..., ge=1, le=9)
 
 
 class AHPMatrixInput(BaseModel):
@@ -103,55 +103,3 @@ class RankedPropertyItem(BaseModel):
 class RankingResponse(BaseModel):
     items: List[RankedPropertyItem]
     total: int
-
-
-# --- AHP Alternatives Schemas (new simplified 5x5 AHP) ---
-
-class AHPAlternativeProperty(BaseModel):
-    """A single property alternative in the AHP alternatives matrix."""
-    property_id: int
-    title: str
-    address: str
-    suburb: Optional[str] = None
-    price: Optional[float] = None
-    rooms: Optional[int] = None
-    bedrooms: Optional[int] = None
-    year_built: Optional[int] = None
-    primary_image: Optional[str] = None
-
-
-class AHPAlternativeRow(BaseModel):
-    """A row in the alternatives matrix: one property × all criteria normalized values."""
-    property_id: int
-    title: str
-    values: Dict[str, float]  # {criteria_code: normalized_value}
-    ahp_score: float
-    rank: int
-    summary_label: str
-
-
-class AHPAlternativesResponse(BaseModel):
-    """
-    Full AHP alternatives computation result.
-
-    criteria          — the 5 fixed AHP criteria
-    criteria_weights  — computed weights from user's pairwise matrix
-    alternatives      — the 5 selected property alternatives
-    alternative_matrix — 5×5 normalized values per property per criteria
-    ranking           — properties sorted by AHP score descending
-    lambda_max        — AHP consistency metric
-    ci                — Consistency Index
-    cr                — Consistency Ratio
-    is_consistent     — whether CR < 0.1
-    consistency_message — Vietnamese message about consistency
-    """
-    criteria: List[Dict[str, Any]]          # [{code, name}, ...]
-    criteria_weights: List[CriteriaWeight]  # weights per criteria
-    alternatives: List[AHPAlternativeProperty]
-    alternative_matrix: List[AHPAlternativeRow]
-    ranking: List[AHPAlternativeRow]
-    lambda_max: float
-    ci: float
-    cr: float
-    is_consistent: bool
-    consistency_message: str

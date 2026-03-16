@@ -14,18 +14,16 @@ NUMERIC_FEATURES = [
     "Bedrooms",
     "Bathrooms",
     "Cars",
-    "Landsize",
-    "BuildingArea",
     "YearBuilt",
     "Latitude",
     "Longitude",
-    "Propertycount",
-    "Postcode",
+    "PropertyCount",
+    "PostCode",
 ]
 
 CATEGORICAL_FEATURES = [
     "Type",
-    "Regionname",
+    "RegionName",
 ]
 
 ALL_FEATURES = NUMERIC_FEATURES + CATEGORICAL_FEATURES

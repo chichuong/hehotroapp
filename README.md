@@ -20,7 +20,6 @@ doan/
 ├── README.md
 ├── backend/
 │   ├── .env / .env.example
-│   ├── Dockerfile
 │   ├── requirements.txt
 │   ├── alembic.ini
 │   ├── alembic/
@@ -53,7 +52,6 @@ doan/
 │           └── seed_data.py
 └── frontend/
     ├── .env / .env.example
-    ├── Dockerfile
     ├── package.json
     ├── tsconfig.json
     ├── vite.config.ts
@@ -100,7 +98,7 @@ doan/
 - **Node.js 18+**
 - **PostgreSQL 16+**
 
-Docker files from earlier phases may still exist in the repository, but the recommended setup for the current system is manual local setup without Docker.
+**Note: Docker is NO LONGER the supported setup path for this application.** The project must be run locally using the instructions below.
 
 ### Manual Setup
 
@@ -248,7 +246,6 @@ curl http://localhost:8000/api/auth/me \
 - ✅ Reusable components (Header, Footer, Layout, PropertyCard, Pagination, Loading, Error, Empty states)
 - ✅ Type-safe API interfaces
 - ✅ Environment-based configuration
-- ✅ Docker Compose setup
 
 ## Phase 2 Completed Features
 

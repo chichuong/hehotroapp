@@ -75,14 +75,24 @@ def _format_raw_value(prop: Property, code: str) -> Optional[str]:
     mapping = CRITERIA_PROPERTY_MAP.get(code)
     if not mapping:
         return None
+    if code == "distance":
+        if prop.latitude is None or prop.longitude is None:
+            return None
+        value = mapping["attr"]
+        # distance_to_cbd_km is computed in scoring service and exposed as synthetic attr key.
+        if value == "distance_to_cbd_km":
+            from app.services.property_scoring_service import _distance_to_cbd_km
+
+            distance_val = _distance_to_cbd_km(prop)
+            if distance_val is None:
+                return None
+            return f"{distance_val:.1f} km"
     value = getattr(prop, mapping["attr"], None)
     if value is None:
         return None
     if code == "price":
         return f"${value:,.0f}"
-    if code in {"area"}:
-        return f"{value:,.0f} m2"
-    if code in {"year_built", "bedrooms", "bathrooms", "parking"}:
+    if code in {"rooms", "year_built", "bedrooms"}:
         return str(int(value))
     return str(value)
 

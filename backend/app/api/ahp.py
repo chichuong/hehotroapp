@@ -1,5 +1,4 @@
-import math
-from typing import Optional, List, Dict, Any
+from typing import Dict, List, Optional, Set, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session, joinedload
@@ -24,27 +23,52 @@ from app.schemas.ahp import (
     RankedPropertyItem,
     CriteriaWeight,
     CriteriaBreakdownItem,
-    AHPAlternativesResponse,
-    AHPAlternativeProperty,
-    AHPAlternativeRow,
 )
 from app.services.ahp_service import compute_ahp_weights, RI_TABLE, CR_THRESHOLD
 from app.services.property_scoring_service import (
     normalize_property_features,
-    normalize_ahp_alternatives,
     calculate_ahp_property_score,
-    calculate_ahp_score_from_normalized,
     get_summary_label,
     SCORABLE_CRITERIA_CODES,
-    AHP_CRITERIA_CODES,
 )
 
 router = APIRouter()
 
 PLACEHOLDER_IMAGE = "https://placehold.co/600x400?text=B%E1%BA%A5t+%C4%91%E1%BB%99ng+s%E1%BA%A3n"
 
-# Number of alternatives for AHP
-AHP_MAX_ALTERNATIVES = 5
+FIXED_AHP_CRITERIA = [
+    {
+        "code": "price",
+        "name": "Giá",
+        "description": "Giá bất động sản - thấp hơn là tốt hơn",
+        "sort_order": 1,
+    },
+    {
+        "code": "distance",
+        "name": "Khoảng cách",
+        "description": "Khoảng cách tới trung tâm - gần hơn là tốt hơn",
+        "sort_order": 2,
+    },
+    {
+        "code": "rooms",
+        "name": "Số phòng",
+        "description": "Tổng số phòng - nhiều hơn là tốt hơn",
+        "sort_order": 3,
+    },
+    {
+        "code": "bedrooms",
+        "name": "Số phòng ngủ",
+        "description": "Số lượng phòng ngủ - nhiều hơn là tốt hơn",
+        "sort_order": 4,
+    },
+    {
+        "code": "year_built",
+        "name": "Năm xây dựng",
+        "description": "Năm xây dựng công trình - mới hơn là tốt hơn",
+        "sort_order": 5,
+    },
+]
+AHP_CRITERIA_CODES = {item["code"] for item in FIXED_AHP_CRITERIA}
 
 
 def _get_primary_image(prop: Property) -> str:
@@ -54,26 +78,99 @@ def _get_primary_image(prop: Property) -> str:
     return primary or PLACEHOLDER_IMAGE
 
 
-def _get_active_ahp_criteria(db: Session) -> List[Criteria]:
-    """Load only the 5 fixed AHP criteria, in sort order."""
-    return (
+def _get_or_create_ahp_criteria(db: Session) -> List[Criteria]:
+    """Return the fixed 5 AHP criteria, creating or updating them if needed."""
+    existing = (
         db.query(Criteria)
-        .filter(
-            Criteria.is_active == True,
-            Criteria.code.in_(AHP_CRITERIA_CODES),
-        )
-        .order_by(Criteria.sort_order)
+        .filter(Criteria.code.in_(AHP_CRITERIA_CODES))
         .all()
     )
+    by_code = {c.code: c for c in existing}
 
+    dirty = False
+    for item in FIXED_AHP_CRITERIA:
+        c = by_code.get(item["code"])
+        if c is None:
+            c = Criteria(
+                code=item["code"],
+                name=item["name"],
+                description=item["description"],
+                is_active=True,
+                sort_order=item["sort_order"],
+            )
+            db.add(c)
+            by_code[item["code"]] = c
+            dirty = True
+            continue
 
-def _get_active_criteria(db: Session) -> List[Criteria]:
-    return (
+        changed = False
+        if c.name != item["name"]:
+            c.name = item["name"]
+            changed = True
+        if c.description != item["description"]:
+            c.description = item["description"]
+            changed = True
+        if c.sort_order != item["sort_order"]:
+            c.sort_order = item["sort_order"]
+            changed = True
+        if c.is_active is not True:
+            c.is_active = True
+            changed = True
+        dirty = dirty or changed
+
+    if dirty:
+        db.flush()
+
+    refreshed = (
         db.query(Criteria)
-        .filter(Criteria.is_active == True)
-        .order_by(Criteria.sort_order)
+        .filter(Criteria.code.in_(AHP_CRITERIA_CODES), Criteria.is_active == True)
         .all()
     )
+    by_code = {c.code: c for c in refreshed}
+    return [by_code[item["code"]] for item in FIXED_AHP_CRITERIA if item["code"] in by_code]
+
+
+def _validate_pairwise_entries(
+    entries: List[AHPMatrixEntry],
+    criteria_ids: List[int],
+) -> Tuple[bool, str]:
+    """Validate that entries represent exactly one upper-triangle value per criterion pair."""
+    criteria_set: Set[int] = set(criteria_ids)
+    n = len(criteria_ids)
+    expected_pairs = n * (n - 1) // 2
+
+    if len(entries) != expected_pairs:
+        return False, f"Ma trận phải có đúng {expected_pairs} cặp so sánh cho {n} tiêu chí."
+
+    seen_pairs: Set[Tuple[int, int]] = set()
+    for entry in entries:
+        row_id = entry.criteria_id_row
+        col_id = entry.criteria_id_col
+
+        if row_id == col_id:
+            return False, "Không được so sánh một tiêu chí với chính nó."
+        if row_id not in criteria_set or col_id not in criteria_set:
+            return False, "Ma trận chỉ được dùng 5 tiêu chí AHP cố định."
+        if abs(entry.value - round(entry.value)) > 1e-9:
+            return False, "Giá trị so sánh phải là số nguyên từ 1 đến 9."
+        if entry.value < 1 or entry.value > 9:
+            return False, "Giá trị so sánh phải nằm trong khoảng 1 đến 9."
+
+        pair = (min(row_id, col_id), max(row_id, col_id))
+        if pair in seen_pairs:
+            return False, "Mỗi cặp tiêu chí chỉ được nhập một lần."
+        seen_pairs.add(pair)
+
+    expected_set: Set[Tuple[int, int]] = set()
+    for i in range(n):
+        for j in range(i + 1, n):
+            pair = (min(criteria_ids[i], criteria_ids[j]), max(criteria_ids[i], criteria_ids[j]))
+            expected_set.add(pair)
+
+    if seen_pairs != expected_set:
+        return False, "Thiếu một số cặp so sánh tiêu chí bắt buộc."
+
+    return True, "OK"
 
 
 def _get_user_matrix(db: Session, user_id: int) -> Optional[AHPMatrix]:
@@ -100,19 +197,23 @@ def _get_user_weights(db: Session, user: User):
         .all()
     )
 
-    criteria_list = _get_active_criteria(db)
-    # Only use criteria that appear in the matrix entries
-    entry_criteria_ids = set()
-    for e in entries:
-        entry_criteria_ids.add(e.criteria_id_row)
-        entry_criteria_ids.add(e.criteria_id_col)
-    criteria_list = [c for c in criteria_list if c.id in entry_criteria_ids]
+    criteria_list = _get_or_create_ahp_criteria(db)
     criteria_ids = [c.id for c in criteria_list]
 
-    if not criteria_ids:
+    if len(criteria_ids) != 5:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Không tìm thấy tiêu chí nào trong ma trận AHP.",
+            detail="Không tìm thấy đủ 5 tiêu chí AHP cố định.",
+        )
+
+    is_valid, message = _validate_pairwise_entries(entries, criteria_ids)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                "Ma trận AHP hiện tại không hợp lệ với bộ 5 tiêu chí cố định. "
+                f"{message}"
+            ),
         )
 
     ahp_result = compute_ahp_weights(entries, criteria_ids)
@@ -130,16 +231,34 @@ def get_ahp_matrix(
 ):
     matrix = _get_user_matrix(db, user.id)
     if not matrix:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Bạn chưa thiết lập ma trận so sánh AHP.",
+        return AHPMatrixResponse(
+            id=0,
+            user_id=user.id,
+            entries=[],
+            created_at=None,
+            updated_at=None,
         )
+
+    criteria_list = _get_or_create_ahp_criteria(db)
+    criteria_ids = [c.id for c in criteria_list]
 
     entries = (
         db.query(AHPMatrixEntry)
         .filter(AHPMatrixEntry.matrix_id == matrix.id)
+        .order_by(AHPMatrixEntry.criteria_id_row, AHPMatrixEntry.criteria_id_col)
         .all()
     )
+
+    is_valid, message = _validate_pairwise_entries(entries, criteria_ids)
+    if not is_valid:
+        # Return placeholder instead of 404 so frontend can continue bootstrapping.
+        return AHPMatrixResponse(
+            id=matrix.id,
+            user_id=matrix.user_id,
+            entries=[],
+            created_at=matrix.created_at,
+            updated_at=matrix.updated_at,
+        )
 
     return AHPMatrixResponse(
         id=matrix.id,
@@ -170,32 +289,29 @@ def create_ahp_matrix(
             detail="Cần ít nhất một cặp so sánh tiêu chí.",
         )
 
-    # Validate that all values are integers 1-9
-    for entry in data.entries:
-        val = entry.value
-        if val < 1 or val > 9 or val != int(val):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Giá trị so sánh phải là số nguyên từ 1 đến 9 (nhận được: {val}).",
-            )
+    criteria_list = _get_or_create_ahp_criteria(db)
+    criteria_ids = [c.id for c in criteria_list]
 
-    # Validate criteria exist
-    criteria_ids_in_entries = set()
-    for entry in data.entries:
-        criteria_ids_in_entries.add(entry.criteria_id_row)
-        criteria_ids_in_entries.add(entry.criteria_id_col)
-
-    valid_criteria = (
-        db.query(Criteria)
-        .filter(Criteria.id.in_(criteria_ids_in_entries), Criteria.is_active == True)
-        .all()
-    )
-    valid_ids = {c.id for c in valid_criteria}
-    invalid_ids = criteria_ids_in_entries - valid_ids
-    if invalid_ids:
+    if len(criteria_ids) != 5:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Tiêu chí không hợp lệ: {list(invalid_ids)}",
+            detail="Không tìm thấy đủ 5 tiêu chí AHP cố định trong hệ thống.",
+        )
+
+    # Validate full 5x5 pairwise structure (upper triangle only).
+    temp_entries = [
+        AHPMatrixEntry(
+            criteria_id_row=entry.criteria_id_row,
+            criteria_id_col=entry.criteria_id_col,
+            value=entry.value,
+        )
+        for entry in data.entries
+    ]
+    is_valid, message = _validate_pairwise_entries(temp_entries, criteria_ids)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=message,
         )
 
     # Delete existing matrix for user (replace strategy)
@@ -209,7 +325,7 @@ def create_ahp_matrix(
     db.add(matrix)
     db.flush()
 
-    # Add entries (store upper triangle)
+    # Add entries (store one value per unordered pair).
     for entry in data.entries:
         db_entry = AHPMatrixEntry(
             matrix_id=matrix.id,
@@ -228,6 +344,7 @@ def create_ahp_matrix(
     entries = (
         db.query(AHPMatrixEntry)
         .filter(AHPMatrixEntry.matrix_id == matrix.id)
+        .order_by(AHPMatrixEntry.criteria_id_row, AHPMatrixEntry.criteria_id_col)
         .all()
     )
 
@@ -305,10 +422,7 @@ def get_ahp_consistency(
     if ahp_result["is_consistent"]:
         message = "Ma trận so sánh nhất quán. Kết quả đáng tin cậy."
     else:
-        message = (
-            "Mức độ nhất quán của các so sánh tiêu chí chưa tốt. "
-            "Bạn nên điều chỉnh lại một số lựa chọn."
-        )
+        message = "Mức độ nhất quán chưa tốt. Bạn nên điều chỉnh lại một số giá trị."
 
     return AHPConsistencyResponse(
         lambda_max=ahp_result["lambda_max"],
@@ -318,190 +432,6 @@ def get_ahp_consistency(
         is_consistent=ahp_result["is_consistent"],
         n=n,
         message=message,
-    )
-
-
-# ============================================================
-# AHP Alternatives Endpoint (New — Simplified 5×5 AHP)
-# ============================================================
-
-@router.get("/ahp/alternatives", response_model=AHPAlternativesResponse)
-def get_ahp_alternatives(
-    suburb: Optional[str] = Query(None, max_length=200),
-    min_price: Optional[float] = Query(None, ge=0),
-    max_price: Optional[float] = Query(None, ge=0),
-    user: User = Depends(require_current_user),
-    db: Session = Depends(get_db),
-):
-    """
-    Compute the full AHP evaluation with 5 alternatives × 5 criteria.
-
-    Selection strategy:
-      1. Filter properties by suburb/price if provided.
-      2. Take the first AHP_MAX_ALTERNATIVES (5) results.
-    """
-    # --- Get user's AHP criteria weights ---
-    ahp_result, criteria_list = _get_user_weights(db, user)
-
-    # Restrict to the 5 AHP criteria only
-    ahp_criteria = _get_active_ahp_criteria(db)
-    if len(ahp_criteria) < 5:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Hệ thống chưa có đủ 5 tiêu chí AHP. Vui lòng chạy migration.",
-        )
-
-    criteria_map = {c.id: c for c in ahp_criteria}
-    criteria_code_map = {c.code: c for c in ahp_criteria}
-
-    # Build weights keyed by code (only for AHP criteria)
-    weights_by_code: Dict[str, float] = {}
-    weights_list: List[CriteriaWeight] = []
-    for cid, w in ahp_result["weights"].items():
-        c = criteria_map.get(cid)
-        if c and c.code in AHP_CRITERIA_CODES:
-            weights_by_code[c.code] = w
-            weights_list.append(CriteriaWeight(
-                criteria_id=c.id,
-                criteria_code=c.code,
-                criteria_name=c.name,
-                weight=w,
-            ))
-
-    # If we don't have weights for all 5 criteria from user's matrix,
-    # use equal weights as fallback
-    if len(weights_by_code) < len(AHP_CRITERIA_CODES):
-        # Try to match by code from all criteria in ahp_result
-        all_criteria_in_result = {c.id: c for c in criteria_list}
-        for cid, w in ahp_result["weights"].items():
-            c = all_criteria_in_result.get(cid)
-            if c and c.code in AHP_CRITERIA_CODES and c.code not in weights_by_code:
-                weights_by_code[c.code] = w
-                if not any(ww.criteria_code == c.code for ww in weights_list):
-                    db_c = criteria_code_map.get(c.code)
-                    if db_c:
-                        weights_list.append(CriteriaWeight(
-                            criteria_id=db_c.id,
-                            criteria_code=db_c.code,
-                            criteria_name=db_c.name,
-                            weight=w,
-                        ))
-
-    # Fallback equal weights for any missing AHP criteria
-    missing = [code for code in AHP_CRITERIA_CODES if code not in weights_by_code]
-    if missing:
-        eq_w = round(1.0 / len(AHP_CRITERIA_CODES), 6)
-        for code in missing:
-            weights_by_code[code] = eq_w
-            c = criteria_code_map.get(code)
-            if c:
-                weights_list.append(CriteriaWeight(
-                    criteria_id=c.id,
-                    criteria_code=c.code,
-                    criteria_name=c.name,
-                    weight=eq_w,
-                ))
-
-    # --- Select up to 5 property alternatives ---
-    query = db.query(Property).options(joinedload(Property.images))
-    if suburb:
-        query = query.filter(Property.suburb.ilike(f"%{suburb}%"))
-    if min_price is not None:
-        query = query.filter(Property.price >= min_price)
-    if max_price is not None:
-        query = query.filter(Property.price <= max_price)
-
-    # Take first AHP_MAX_ALTERNATIVES properties (after deduplication)
-    raw_props = query.limit(AHP_MAX_ALTERNATIVES * 3).all()
-
-    # Deduplicate
-    seen_ids: set = set()
-    candidates: List[Property] = []
-    for p in raw_props:
-        if p.id not in seen_ids:
-            seen_ids.add(p.id)
-            candidates.append(p)
-        if len(candidates) >= AHP_MAX_ALTERNATIVES:
-            break
-
-    if not candidates:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Không tìm thấy bất động sản nào phù hợp với bộ lọc đã chọn.",
-        )
-
-    # --- Normalize candidates using AHP criteria ---
-    normalized = normalize_ahp_alternatives(candidates)
-
-    # --- Build alternative matrix rows ---
-    alternative_rows: List[AHPAlternativeRow] = []
-    for prop in candidates:
-        norm_vals = normalized.get(prop.id, {})
-        score = calculate_ahp_score_from_normalized(norm_vals, weights_by_code)
-        alternative_rows.append(AHPAlternativeRow(
-            property_id=prop.id,
-            title=prop.title,
-            values=norm_vals,
-            ahp_score=score,
-            rank=0,  # filled after sorting
-            summary_label=get_summary_label(score),
-        ))
-
-    # --- Sort and rank ---
-    alternative_rows.sort(key=lambda x: x.ahp_score, reverse=True)
-    for rank_idx, row in enumerate(alternative_rows, start=1):
-        row.rank = rank_idx
-
-    # --- Build alternatives list ---
-    prop_map = {p.id: p for p in candidates}
-    alternatives = []
-    for row in alternative_rows:
-        prop = prop_map.get(row.property_id)
-        if prop:
-            alternatives.append(AHPAlternativeProperty(
-                property_id=prop.id,
-                title=prop.title,
-                address=prop.address,
-                suburb=prop.suburb,
-                price=prop.price,
-                rooms=prop.rooms,
-                bedrooms=prop.bedrooms,
-                year_built=prop.year_built,
-                primary_image=_get_primary_image(prop),
-            ))
-
-    # --- Criteria list for response ---
-    criteria_out = [
-        {"code": c.code, "name": c.name, "description": c.description}
-        for c in ahp_criteria
-        if c.code in AHP_CRITERIA_CODES
-    ]
-    # Ensure ordering matches AHP_CRITERIA_CODES
-    code_order = {code: i for i, code in enumerate(AHP_CRITERIA_CODES)}
-    criteria_out.sort(key=lambda x: code_order.get(x["code"], 99))
-
-    # --- Consistency message ---
-    cr = ahp_result["cr"]
-    is_consistent = ahp_result["is_consistent"]
-    if is_consistent:
-        consistency_message = "Ma trận so sánh nhất quán. Kết quả đáng tin cậy."
-    else:
-        consistency_message = (
-            f"Mức độ nhất quán chưa tốt (CR = {cr * 100:.1f}%). "
-            "Bạn nên điều chỉnh lại một số giá trị."
-        )
-
-    return AHPAlternativesResponse(
-        criteria=criteria_out,
-        criteria_weights=weights_list,
-        alternatives=alternatives,
-        alternative_matrix=alternative_rows,
-        ranking=alternative_rows,  # already sorted
-        lambda_max=ahp_result["lambda_max"],
-        ci=ahp_result["ci"],
-        cr=cr,
-        is_consistent=is_consistent,
-        consistency_message=consistency_message,
     )
 
 
@@ -588,7 +518,12 @@ def get_property_ranking(
     user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
 ):
-    ahp_result, criteria_list = _get_user_weights(db, user)
+    try:
+        ahp_result, criteria_list = _get_user_weights(db, user)
+    except HTTPException as exc:
+        if exc.status_code == status.HTTP_404_NOT_FOUND:
+            return RankingResponse(items=[], total=0)
+        raise
     criteria_code_to_id = {c.code: c.id for c in criteria_list}
     scorable_codes = [c.code for c in criteria_list if c.code in SCORABLE_CRITERIA_CODES]
 

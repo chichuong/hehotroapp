@@ -2,6 +2,8 @@
 
 from typing import Optional, Dict, Any
 
+from app.ml.preprocess import ALL_FEATURES
+
 
 # Mapping from Property model field names to the CSV/training feature names
 PROPERTY_TO_FEATURE_MAP = {
@@ -9,14 +11,12 @@ PROPERTY_TO_FEATURE_MAP = {
     "bedrooms": "Bedrooms",
     "bathrooms": "Bathrooms",
     "cars": "Cars",
-    "land_size": "Landsize",
-    "building_area": "BuildingArea",
     "year_built": "YearBuilt",
     "latitude": "Latitude",
     "longitude": "Longitude",
-    "postcode": "Postcode",
+    "postcode": "PostCode",
     "property_type": "Type",
-    "region_name": "Regionname",
+    "region_name": "RegionName",
 }
 
 # Map from Vietnamese property types back to CSV codes
@@ -40,17 +40,16 @@ def build_features_from_property(prop: Any) -> Dict[str, Any]:
 
         features[feature_name] = value
 
-    # Distance and Propertycount are not stored on Property model directly,
+    # Distance and PropertyCount are not stored directly,
     # so they will be None and handled by the imputer during inference
     features.setdefault("Distance", None)
-    features.setdefault("Propertycount", None)
+    features.setdefault("PropertyCount", None)
 
     return features
 
 
 def build_features_from_dict(data: Dict[str, Any]) -> Dict[str, Any]:
     """Build feature dict from arbitrary input dict (for custom prediction endpoint)."""
-    from app.ml.preprocess import ALL_FEATURES
     features = {}
     for feat in ALL_FEATURES:
         features[feat] = data.get(feat, None)

@@ -18,10 +18,18 @@ def register(data: UserRegister, db: Session = Depends(get_db)):
             detail="Email đã được sử dụng",
         )
 
+    try:
+        hashed_password = hash_password(data.password)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
     user = User(
         full_name=data.full_name,
         email=data.email,
-        password_hash=hash_password(data.password),
+        password_hash=hashed_password,
         role="user",
     )
     db.add(user)
@@ -38,7 +46,7 @@ def register(data: UserRegister, db: Session = Depends(get_db)):
 @router.post("/login", response_model=TokenResponse)
 def login(data: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
-    if not user or not verify_password(data.password, user.password_hash):
+    if not data.password or not user or not verify_password(data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Email hoặc mật khẩu không đúng",

@@ -11,7 +11,9 @@ from app.db.base import Base
 from app.models import (
     User, Property, PropertyImage, Favorite,
     UserProfile, Criteria, UserCriteriaPreference, RecommendationProfile,
+    AHPMatrix, AHPMatrixEntry, PropertyAHPScore,
     ModelVersion, PropertyValuation, PredictionLog,
+    PropertyDSSScore, ComparisonItem,
 )
 from app.core.config import settings
 

@@ -40,13 +40,13 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 export function CompareProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { isAuthenticated, initialized } = useAuth();
   const [items, setItems] = useState<ComparisonPropertyItem[]>([]);
   const [maxItems, setMaxItems] = useState(4);
   const [loading, setLoading] = useState(false);
 
   const refresh = async () => {
-    if (!user) {
+    if (!initialized || !isAuthenticated) {
       setItems([]);
       setMaxItems(4);
       return;
@@ -62,13 +62,21 @@ export function CompareProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    if (!initialized) return;
     refresh().catch(() => {
       setItems([]);
       setMaxItems(4);
     });
-  }, [user]);
+  }, [initialized, isAuthenticated]);
 
   const addToCompare = async (propertyId: number) => {
+    if (!isAuthenticated) {
+      return {
+        ok: false,
+        error: "Vui lòng đăng nhập để sử dụng tính năng so sánh.",
+      };
+    }
+
     try {
       const data = await compareApi.add(propertyId);
       setItems(data.items);
@@ -83,6 +91,12 @@ export function CompareProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromCompare = async (propertyId: number) => {
+    if (!isAuthenticated) {
+      setItems([]);
+      setMaxItems(4);
+      return;
+    }
+
     const data = await compareApi.remove(propertyId);
     setItems(data.items);
     setMaxItems(data.max_items);

@@ -10,7 +10,7 @@ interface CompareButtonProps {
 
 export default function CompareButton({ propertyId, compact = false }: CompareButtonProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, initialized, isAuthenticated } = useAuth();
   const { isCompared, toggleCompare } = useCompare();
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,9 @@ export default function CompareButton({ propertyId, compact = false }: CompareBu
   const selected = isCompared(propertyId);
 
   const handleClick = async () => {
-    if (!user) {
+    if (!initialized) return;
+
+    if (!isAuthenticated || !user) {
       navigate("/login");
       return;
     }
