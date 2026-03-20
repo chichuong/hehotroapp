@@ -29,3 +29,11 @@ app.include_router(ai.router, prefix="/api/ai", tags=["AI Valuation"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 app.include_router(insights.router, prefix="/api/insights", tags=["Insights"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
+
+@app.get("/", include_in_schema=False)
+def read_root():
+    return {
+        "status": "online",
+        "message": "Real Estate DSS API is running. Xin hãy truy cập vào đường dẫn Frontend (trên Vercel) để sử dụng ứng dụng.",
+        "docs": "/docs"
+    }
