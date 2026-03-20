@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://<REPLACE_WITH_YOUR_BACKEND_URL>/api/$1"
+      "destination": "https://dss-ho-tro-mua-bat-dong-san-o-melbourne.onrender.com/api/$1"
     },
     {
       "source": "/docs",
-      "destination": "https://<REPLACE_WITH_YOUR_BACKEND_URL>/docs"
+      "destination": "https://dss-ho-tro-mua-bat-dong-san-o-melbourne.onrender.com/docs"
     },
     {
       "source": "/openapi.json",
-      "destination": "https://<REPLACE_WITH_YOUR_BACKEND_URL>/openapi.json"
+      "destination": "https://dss-ho-tro-mua-bat-dong-san-o-melbourne.onrender.com/openapi.json"
     },
     {
       "source": "/(.*)",
