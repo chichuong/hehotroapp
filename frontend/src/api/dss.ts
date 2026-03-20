@@ -128,7 +128,36 @@ export const dssApi = {
     if (params?.suburb) searchParams.append("suburb", params.suburb);
     if (params?.min_price != null) searchParams.append("min_price", String(params.min_price));
     if (params?.max_price != null) searchParams.append("max_price", String(params.max_price));
-    const res = await api.get<AHPAlternativesResponse>(`/dss/ahp/alternatives?${searchParams.toString()}`);
+    const res = await api.get<AHPAlternativesResponse>(`/dss/alternatives/matrix?${searchParams.toString()}`);
+    return res.data;
+  },
+
+  getAlternativesMatrix: async (params?: {
+    suburb?: string;
+    min_price?: number;
+    max_price?: number;
+  }): Promise<AHPAlternativesResponse> => {
+    const searchParams = new URLSearchParams();
+    if (params?.suburb) searchParams.append("suburb", params.suburb);
+    if (params?.min_price != null) searchParams.append("min_price", String(params.min_price));
+    if (params?.max_price != null) searchParams.append("max_price", String(params.max_price));
+    const res = await api.get<AHPAlternativesResponse>(`/dss/alternatives/matrix?${searchParams.toString()}`);
+    return res.data;
+  },
+
+  getTop5Recommendations: async (params?: {
+    suburb?: string;
+    min_price?: number;
+    max_price?: number;
+  }): Promise<AHPAlternativesResponse> => {
+    const searchParams = new URLSearchParams();
+    if (params?.suburb) searchParams.append("suburb", params.suburb);
+    if (params?.min_price != null) searchParams.append("min_price", String(params.min_price));
+    if (params?.max_price != null) searchParams.append("max_price", String(params.max_price));
+    const queryString = searchParams.toString();
+    const res = await api.post<AHPAlternativesResponse>(
+      `/dss/recommendations/top5${queryString ? `?${queryString}` : ""}`
+    );
     return res.data;
   },
 

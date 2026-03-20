@@ -23,6 +23,10 @@ from app.schemas.ahp import (
     RankedPropertyItem,
     CriteriaWeight,
     CriteriaBreakdownItem,
+    AHPCriteriaInfo,
+    AHPAlternativeProperty,
+    AHPAlternativeRow,
+    AHPAlternativesResponse,
 )
 from app.services.ahp_service import compute_ahp_weights, RI_TABLE, CR_THRESHOLD
 from app.services.property_scoring_service import (
@@ -128,6 +132,126 @@ def _get_or_create_ahp_criteria(db: Session) -> List[Criteria]:
     )
     by_code = {c.code: c for c in refreshed}
     return [by_code[item["code"]] for item in FIXED_AHP_CRITERIA if item["code"] in by_code]
+
+
+def _build_top5_alternatives_payload(
+    db: Session,
+    user: User,
+    suburb: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+) -> AHPAlternativesResponse:
+    ahp_result, criteria_list = _get_user_weights(db, user)
+
+    criteria_code_to_id = {c.code: c.id for c in criteria_list}
+    criteria_map = {c.id: c for c in criteria_list}
+    scorable_codes = [c.code for c in criteria_list if c.code in SCORABLE_CRITERIA_CODES]
+
+    query = db.query(Property).options(joinedload(Property.images))
+    if suburb:
+        query = query.filter(Property.suburb.ilike(f"%{suburb}%"))
+    if min_price is not None:
+        query = query.filter(Property.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Property.price <= max_price)
+
+    properties = query.all()
+
+    seen_ids: Set[int] = set()
+    unique_properties: List[Property] = []
+    for prop in properties:
+        if prop.id in seen_ids:
+            continue
+        seen_ids.add(prop.id)
+        unique_properties.append(prop)
+
+    normalized = normalize_property_features(unique_properties, scorable_codes)
+
+    scored_rows: List[Tuple[Property, float, Dict[str, float]]] = []
+    for prop in unique_properties:
+        normalized_values = normalized.get(prop.id, {})
+        total_score, _ = calculate_ahp_property_score(
+            prop,
+            ahp_result["weights"],
+            normalized_values,
+            criteria_code_to_id,
+        )
+        scored_rows.append((prop, total_score, normalized_values))
+
+    scored_rows.sort(key=lambda item: item[1], reverse=True)
+    top_rows = scored_rows[:5]
+
+    if ahp_result["is_consistent"]:
+        consistency_message = "Ma trận so sánh nhất quán. Kết quả đáng tin cậy."
+    else:
+        consistency_message = "Mức độ nhất quán chưa tốt. Bạn nên điều chỉnh lại một số giá trị."
+
+    criteria_info = [
+        AHPCriteriaInfo(
+            code=c.code,
+            name=c.name,
+            description=c.description,
+        )
+        for c in criteria_list
+    ]
+
+    criteria_weights = [
+        CriteriaWeight(
+            criteria_id=cid,
+            criteria_code=criteria_map[cid].code,
+            criteria_name=criteria_map[cid].name,
+            weight=weight,
+        )
+        for cid, weight in ahp_result["weights"].items()
+        if cid in criteria_map
+    ]
+
+    alternatives: List[AHPAlternativeProperty] = []
+    alternative_matrix: List[AHPAlternativeRow] = []
+
+    for rank, (prop, score, normalized_values) in enumerate(top_rows, start=1):
+        alternatives.append(
+            AHPAlternativeProperty(
+                property_id=prop.id,
+                title=prop.title,
+                address=prop.address,
+                suburb=prop.suburb,
+                price=prop.price,
+                rooms=prop.rooms,
+                bedrooms=prop.bedrooms,
+                year_built=prop.year_built,
+                primary_image=_get_primary_image(prop),
+            )
+        )
+
+        values = {
+            code: round(float(normalized_values.get(code, 0.0)), 6)
+            for code in scorable_codes
+        }
+
+        alternative_matrix.append(
+            AHPAlternativeRow(
+                property_id=prop.id,
+                title=prop.title,
+                values=values,
+                ahp_score=score,
+                rank=rank,
+                summary_label=get_summary_label(score),
+            )
+        )
+
+    return AHPAlternativesResponse(
+        criteria=criteria_info,
+        criteria_weights=criteria_weights,
+        alternatives=alternatives,
+        alternative_matrix=alternative_matrix,
+        ranking=alternative_matrix,
+        lambda_max=ahp_result["lambda_max"],
+        ci=ahp_result["ci"],
+        cr=ahp_result["cr"],
+        is_consistent=ahp_result["is_consistent"],
+        consistency_message=consistency_message,
+    )
 
 
 def _validate_pairwise_entries(
@@ -588,3 +712,54 @@ def get_property_ranking(
         ))
 
     return RankingResponse(items=items, total=total)
+
+
+@router.post("/recommendations/top5", response_model=AHPAlternativesResponse)
+def get_top5_recommendations(
+    suburb: Optional[str] = Query(None, max_length=200),
+    min_price: Optional[float] = Query(None, ge=0),
+    max_price: Optional[float] = Query(None, ge=0),
+    user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+):
+    return _build_top5_alternatives_payload(
+        db=db,
+        user=user,
+        suburb=suburb,
+        min_price=min_price,
+        max_price=max_price,
+    )
+
+
+@router.get("/alternatives/matrix", response_model=AHPAlternativesResponse)
+def get_alternatives_matrix(
+    suburb: Optional[str] = Query(None, max_length=200),
+    min_price: Optional[float] = Query(None, ge=0),
+    max_price: Optional[float] = Query(None, ge=0),
+    user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+):
+    return _build_top5_alternatives_payload(
+        db=db,
+        user=user,
+        suburb=suburb,
+        min_price=min_price,
+        max_price=max_price,
+    )
+
+
+@router.get("/ahp/alternatives", response_model=AHPAlternativesResponse)
+def get_ahp_alternatives_legacy(
+    suburb: Optional[str] = Query(None, max_length=200),
+    min_price: Optional[float] = Query(None, ge=0),
+    max_price: Optional[float] = Query(None, ge=0),
+    user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+):
+    return _build_top5_alternatives_payload(
+        db=db,
+        user=user,
+        suburb=suburb,
+        min_price=min_price,
+        max_price=max_price,
+    )

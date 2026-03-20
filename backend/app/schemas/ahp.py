@@ -103,3 +103,45 @@ class RankedPropertyItem(BaseModel):
 class RankingResponse(BaseModel):
     items: List[RankedPropertyItem]
     total: int
+
+
+# --- AHP Alternatives / Top-5 Schemas ---
+
+class AHPCriteriaInfo(BaseModel):
+    code: str
+    name: str
+    description: Optional[str] = None
+
+
+class AHPAlternativeProperty(BaseModel):
+    property_id: int
+    title: str
+    address: str
+    suburb: Optional[str] = None
+    price: Optional[float] = None
+    rooms: Optional[int] = None
+    bedrooms: Optional[int] = None
+    year_built: Optional[int] = None
+    primary_image: Optional[str] = None
+
+
+class AHPAlternativeRow(BaseModel):
+    property_id: int
+    title: str
+    values: Dict[str, float]
+    ahp_score: float
+    rank: int
+    summary_label: str
+
+
+class AHPAlternativesResponse(BaseModel):
+    criteria: List[AHPCriteriaInfo]
+    criteria_weights: List[CriteriaWeight]
+    alternatives: List[AHPAlternativeProperty]
+    alternative_matrix: List[AHPAlternativeRow]
+    ranking: List[AHPAlternativeRow]
+    lambda_max: float
+    ci: float
+    cr: float
+    is_consistent: bool
+    consistency_message: str

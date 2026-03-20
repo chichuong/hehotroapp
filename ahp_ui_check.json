@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Hệ thống Hỗ trợ Ra quyết định Bất động sản",
+  "headingsPresent": {
+    "matrix": 1,
+    "weights": 1,
+    "top5": 1,
+    "alternatives": 1,
+    "ranking": 1
+  },
+  "criteriaMatrix": {
+    "headers": [
+      "",
+      "Giá",
+      "Khoảng cách",
+      "Số phòng",
+      "Số phòng ngủ",
+      "Năm xây dựng"
+    ],
+    "rowCount": 5,
+    "editableUpperTriangleInputs": 10,
+    "reciprocalChecks": {
+      "r1c0": "1/3",
+      "r2c0": "1/5",
+      "r3c0": "1/7",
+      "r4c0": "1/2"
+    }
+  },
+  "weightsSummaryUI": {
+    "lambdaText": "5.6517",
+    "ciText": "0.1629",
+    "crText": "Mức độ nhất quán chưa tốt. Bạn nên điều chỉnh lại một số giá trị. (CR = 14.5%)",
+    "consistentText": "Mức độ nhất quán chưa tốt. Bạn nên điều chỉnh lại một số giá trị. (CR = 14.5%)"
+  },
+  "alternativesSection": {
+    "tableCount": 2,
+    "alternativeTableHeaderCount": 7,
+    "alternativeTableRowCount": 5,
+    "rankingCount": 5
+  },
+  "screenshotPath": "D:\\hoc\\hotroraquyetdinh\\doan\\ahp_ui_verification.png"
+}

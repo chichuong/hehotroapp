@@ -1,0 +1,641 @@
+﻿{
+    "top5":  {
+                 "criteria":  [
+                                  {
+                                      "code":  "price",
+                                      "name":  "GiÃ¡",
+                                      "description":  "GiÃ¡ báº¥t Äá»ng sáº£n - tháº¥p hÆ¡n lÃ  tá»t hÆ¡n"
+                                  },
+                                  {
+                                      "code":  "distance",
+                                      "name":  "Khoáº£ng cÃ¡ch",
+                                      "description":  "Khoáº£ng cÃ¡ch tá»i trung tÃ¢m - gáº§n hÆ¡n lÃ  tá»t hÆ¡n"
+                                  },
+                                  {
+                                      "code":  "rooms",
+                                      "name":  "Sá» phÃ²ng",
+                                      "description":  "Tá»ng sá» phÃ²ng - nhiá»u hÆ¡n lÃ  tá»t hÆ¡n"
+                                  },
+                                  {
+                                      "code":  "bedrooms",
+                                      "name":  "Sá» phÃ²ng ngá»§",
+                                      "description":  "Sá» lÆ°á»£ng phÃ²ng ngá»§ - nhiá»u hÆ¡n lÃ  tá»t hÆ¡n"
+                                  },
+                                  {
+                                      "code":  "year_built",
+                                      "name":  "NÄm xÃ¢y dá»±ng",
+                                      "description":  "NÄm xÃ¢y dá»±ng cÃ´ng trÃ¬nh - má»i hÆ¡n lÃ  tá»t hÆ¡n"
+                                  }
+                              ],
+                 "criteria_weights":  [
+                                          {
+                                              "criteria_id":  1,
+                                              "criteria_code":  "price",
+                                              "criteria_name":  "GiÃ¡",
+                                              "weight":  0.455086
+                                          },
+                                          {
+                                              "criteria_id":  13,
+                                              "criteria_code":  "distance",
+                                              "criteria_name":  "Khoáº£ng cÃ¡ch",
+                                              "weight":  0.224783
+                                          },
+                                          {
+                                              "criteria_id":  14,
+                                              "criteria_code":  "rooms",
+                                              "criteria_name":  "Sá» phÃ²ng",
+                                              "weight":  0.124546
+                                          },
+                                          {
+                                              "criteria_id":  4,
+                                              "criteria_code":  "bedrooms",
+                                              "criteria_name":  "Sá» phÃ²ng ngá»§",
+                                              "weight":  0.102575
+                                          },
+                                          {
+                                              "criteria_id":  8,
+                                              "criteria_code":  "year_built",
+                                              "criteria_name":  "NÄm xÃ¢y dá»±ng",
+                                              "weight":  0.093011
+                                          }
+                                      ],
+                 "alternatives":  [
+                                      {
+                                          "property_id":  11299,
+                                          "title":  "NhÃ  phá» 10 phÃ²ng táº¡i Bundoora",
+                                          "address":  "5 Ball Ct",
+                                          "suburb":  "Bundoora",
+                                          "price":  900000.0,
+                                          "rooms":  10,
+                                          "bedrooms":  10,
+                                          "year_built":  2006,
+                                          "primary_image":  "https://placehold.co/800x600/e2e8f0/64748b?text=H%C3%ACnh+1"
+                                      },
+                                      {
+                                          "property_id":  3254,
+                                          "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Heidelberg Heights",
+                                          "address":  "478 Waterdale Rd",
+                                          "suburb":  "Heidelberg Heights",
+                                          "price":  770000.0,
+                                          "rooms":  8,
+                                          "bedrooms":  8,
+                                          "year_built":  1960,
+                                          "primary_image":  "https://placehold.co/800x600/e2e8f0/64748b?text=H%C3%ACnh+1"
+                                      },
+                                      {
+                                          "property_id":  4282,
+                                          "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Newport",
+                                          "address":  "487 Melbourne Rd",
+                                          "suburb":  "Newport",
+                                          "price":  881000.0,
+                                          "rooms":  8,
+                                          "bedrooms":  6,
+                                          "year_built":  1920,
+                                          "primary_image":  "https://placehold.co/800x600/e2e8f0/64748b?text=H%C3%ACnh+1"
+                                      },
+                                      {
+                                          "property_id":  1416,
+                                          "title":  "NhÃ  phá» 7 phÃ²ng táº¡i Brunswick West",
+                                          "address":  "2 Henderson St",
+                                          "suburb":  "Brunswick West",
+                                          "price":  1205000.0,
+                                          "rooms":  7,
+                                          "bedrooms":  7,
+                                          "year_built":  1982,
+                                          "primary_image":  "https://placehold.co/800x600/e2e8f0/64748b?text=H%C3%ACnh+1"
+                                      },
+                                      {
+                                          "property_id":  7224,
+                                          "title":  "CÄn há» 6 phÃ²ng táº¡i West Footscray",
+                                          "address":  "1/12 Hatfield Ct",
+                                          "suburb":  "West Footscray",
+                                          "price":  520000.0,
+                                          "rooms":  6,
+                                          "bedrooms":  4,
+                                          "year_built":  1970,
+                                          "primary_image":  "https://placehold.co/800x600/e2e8f0/64748b?text=H%C3%ACnh+1"
+                                      }
+                                  ],
+                 "alternative_matrix":  [
+                                            {
+                                                "property_id":  11299,
+                                                "title":  "NhÃ  phá» 10 phÃ²ng táº¡i Bundoora",
+                                                "values":  {
+                                                               "price":  0.908581,
+                                                               "distance":  0.747289,
+                                                               "rooms":  1.0,
+                                                               "bedrooms":  0.5,
+                                                               "year_built":  0.986602
+                                                           },
+                                                "ahp_score":  0.849059,
+                                                "rank":  1,
+                                                "summary_label":  "Æ¯u tiÃªn xem"
+                                            },
+                                            {
+                                                "property_id":  3254,
+                                                "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Heidelberg Heights",
+                                                "values":  {
+                                                               "price":  0.923163,
+                                                               "distance":  0.803227,
+                                                               "rooms":  0.777778,
+                                                               "bedrooms":  0.4,
+                                                               "year_built":  0.930572
+                                                           },
+                                                "ahp_score":  0.825123,
+                                                "rank":  2,
+                                                "summary_label":  "Æ¯u tiÃªn xem"
+                                            },
+                                            {
+                                                "property_id":  4282,
+                                                "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Newport",
+                                                "values":  {
+                                                               "price":  0.910712,
+                                                               "distance":  0.862742,
+                                                               "rooms":  0.777778,
+                                                               "bedrooms":  0.3,
+                                                               "year_built":  0.881851
+                                                           },
+                                                "ahp_score":  0.818045,
+                                                "rank":  3,
+                                                "summary_label":  "Æ¯u tiÃªn xem"
+                                            },
+                                            {
+                                                "property_id":  1416,
+                                                "title":  "NhÃ  phá» 7 phÃ²ng táº¡i Brunswick West",
+                                                "values":  {
+                                                               "price":  0.874369,
+                                                               "distance":  0.893452,
+                                                               "rooms":  0.666667,
+                                                               "bedrooms":  0.35,
+                                                               "year_built":  0.957369
+                                                           },
+                                                "ahp_score":  0.806724,
+                                                "rank":  4,
+                                                "summary_label":  "Æ¯u tiÃªn xem"
+                                            },
+                                            {
+                                                "property_id":  7224,
+                                                "title":  "CÄn há» 6 phÃ²ng táº¡i West Footscray",
+                                                "values":  {
+                                                               "price":  0.951206,
+                                                               "distance":  0.849793,
+                                                               "rooms":  0.555556,
+                                                               "bedrooms":  0.2,
+                                                               "year_built":  0.942753
+                                                           },
+                                                "ahp_score":  0.801293,
+                                                "rank":  5,
+                                                "summary_label":  "Æ¯u tiÃªn xem"
+                                            }
+                                        ],
+                 "ranking":  [
+                                 {
+                                     "property_id":  11299,
+                                     "title":  "NhÃ  phá» 10 phÃ²ng táº¡i Bundoora",
+                                     "values":  {
+                                                    "price":  0.908581,
+                                                    "distance":  0.747289,
+                                                    "rooms":  1.0,
+                                                    "bedrooms":  0.5,
+                                                    "year_built":  0.986602
+                                                },
+                                     "ahp_score":  0.849059,
+                                     "rank":  1,
+                                     "summary_label":  "Æ¯u tiÃªn xem"
+                                 },
+                                 {
+                                     "property_id":  3254,
+                                     "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Heidelberg Heights",
+                                     "values":  {
+                                                    "price":  0.923163,
+                                                    "distance":  0.803227,
+                                                    "rooms":  0.777778,
+                                                    "bedrooms":  0.4,
+                                                    "year_built":  0.930572
+                                                },
+                                     "ahp_score":  0.825123,
+                                     "rank":  2,
+                                     "summary_label":  "Æ¯u tiÃªn xem"
+                                 },
+                                 {
+                                     "property_id":  4282,
+                                     "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Newport",
+                                     "values":  {
+                                                    "price":  0.910712,
+                                                    "distance":  0.862742,
+                                                    "rooms":  0.777778,
+                                                    "bedrooms":  0.3,
+                                                    "year_built":  0.881851
+                                                },
+                                     "ahp_score":  0.818045,
+                                     "rank":  3,
+                                     "summary_label":  "Æ¯u tiÃªn xem"
+                                 },
+                                 {
+                                     "property_id":  1416,
+                                     "title":  "NhÃ  phá» 7 phÃ²ng táº¡i Brunswick West",
+                                     "values":  {
+                                                    "price":  0.874369,
+                                                    "distance":  0.893452,
+                                                    "rooms":  0.666667,
+                                                    "bedrooms":  0.35,
+                                                    "year_built":  0.957369
+                                                },
+                                     "ahp_score":  0.806724,
+                                     "rank":  4,
+                                     "summary_label":  "Æ¯u tiÃªn xem"
+                                 },
+                                 {
+                                     "property_id":  7224,
+                                     "title":  "CÄn há» 6 phÃ²ng táº¡i West Footscray",
+                                     "values":  {
+                                                    "price":  0.951206,
+                                                    "distance":  0.849793,
+                                                    "rooms":  0.555556,
+                                                    "bedrooms":  0.2,
+                                                    "year_built":  0.942753
+                                                },
+                                     "ahp_score":  0.801293,
+                                     "rank":  5,
+                                     "summary_label":  "Æ¯u tiÃªn xem"
+                                 }
+                             ],
+                 "lambda_max":  5.651704,
+                 "ci":  0.162926,
+                 "cr":  0.14547,
+                 "is_consistent":  false,
+                 "consistency_message":  "Má»©c Äá» nháº¥t quÃ¡n chÆ°a tá»t. Báº¡n nÃªn Äiá»u chá»nh láº¡i má»t sá» giÃ¡ trá»."
+             },
+    "post_matrix":  {
+                        "id":  1,
+                        "user_id":  6,
+                        "entries":  [
+                                        {
+                                            "criteria_id_row":  1,
+                                            "criteria_id_col":  4,
+                                            "value":  7.0
+                                        },
+                                        {
+                                            "criteria_id_row":  1,
+                                            "criteria_id_col":  8,
+                                            "value":  2.0
+                                        },
+                                        {
+                                            "criteria_id_row":  1,
+                                            "criteria_id_col":  13,
+                                            "value":  3.0
+                                        },
+                                        {
+                                            "criteria_id_row":  1,
+                                            "criteria_id_col":  14,
+                                            "value":  5.0
+                                        },
+                                        {
+                                            "criteria_id_row":  4,
+                                            "criteria_id_col":  8,
+                                            "value":  3.0
+                                        },
+                                        {
+                                            "criteria_id_row":  13,
+                                            "criteria_id_col":  4,
+                                            "value":  4.0
+                                        },
+                                        {
+                                            "criteria_id_row":  13,
+                                            "criteria_id_col":  8,
+                                            "value":  3.0
+                                        },
+                                        {
+                                            "criteria_id_row":  13,
+                                            "criteria_id_col":  14,
+                                            "value":  2.0
+                                        },
+                                        {
+                                            "criteria_id_row":  14,
+                                            "criteria_id_col":  4,
+                                            "value":  2.0
+                                        },
+                                        {
+                                            "criteria_id_row":  14,
+                                            "criteria_id_col":  8,
+                                            "value":  2.0
+                                        }
+                                    ],
+                        "created_at":  "2026-03-20T02:11:39",
+                        "updated_at":  "2026-03-20T02:11:39"
+                    },
+    "alternatives_matrix":  {
+                                "criteria":  [
+                                                 {
+                                                     "code":  "price",
+                                                     "name":  "GiÃ¡",
+                                                     "description":  "GiÃ¡ báº¥t Äá»ng sáº£n - tháº¥p hÆ¡n lÃ  tá»t hÆ¡n"
+                                                 },
+                                                 {
+                                                     "code":  "distance",
+                                                     "name":  "Khoáº£ng cÃ¡ch",
+                                                     "description":  "Khoáº£ng cÃ¡ch tá»i trung tÃ¢m - gáº§n hÆ¡n lÃ  tá»t hÆ¡n"
+                                                 },
+                                                 {
+                                                     "code":  "rooms",
+                                                     "name":  "Sá» phÃ²ng",
+                                                     "description":  "Tá»ng sá» phÃ²ng - nhiá»u hÆ¡n lÃ  tá»t hÆ¡n"
+                                                 },
+                                                 {
+                                                     "code":  "bedrooms",
+                                                     "name":  "Sá» phÃ²ng ngá»§",
+                                                     "description":  "Sá» lÆ°á»£ng phÃ²ng ngá»§ - nhiá»u hÆ¡n lÃ  tá»t hÆ¡n"
+                                                 },
+                                                 {
+                                                     "code":  "year_built",
+                                                     "name":  "NÄm xÃ¢y dá»±ng",
+                                                     "description":  "NÄm xÃ¢y dá»±ng cÃ´ng trÃ¬nh - má»i hÆ¡n lÃ  tá»t hÆ¡n"
+                                                 }
+                                             ],
+                                "criteria_weights":  [
+                                                         {
+                                                             "criteria_id":  1,
+                                                             "criteria_code":  "price",
+                                                             "criteria_name":  "GiÃ¡",
+                                                             "weight":  0.455086
+                                                         },
+                                                         {
+                                                             "criteria_id":  13,
+                                                             "criteria_code":  "distance",
+                                                             "criteria_name":  "Khoáº£ng cÃ¡ch",
+                                                             "weight":  0.224783
+                                                         },
+                                                         {
+                                                             "criteria_id":  14,
+                                                             "criteria_code":  "rooms",
+                                                             "criteria_name":  "Sá» phÃ²ng",
+                                                             "weight":  0.124546
+                                                         },
+                                                         {
+                                                             "criteria_id":  4,
+                                                             "criteria_code":  "bedrooms",
+                                                             "criteria_name":  "Sá» phÃ²ng ngá»§",
+                                                             "weight":  0.102575
+                                                         },
+                                                         {
+                                                             "criteria_id":  8,
+                                                             "criteria_code":  "year_built",
+                                                             "criteria_name":  "NÄm xÃ¢y dá»±ng",
+                                                             "weight":  0.093011
+                                                         }
+                                                     ],
+                                "alternatives":  [
+                                                     {
+                                                         "property_id":  11299,
+                                                         "title":  "NhÃ  phá» 10 phÃ²ng táº¡i Bundoora",
+                                                         "address":  "5 Ball Ct",
+                                                         "suburb":  "Bundoora",
+                                                         "price":  900000.0,
+                                                         "rooms":  10,
+                                                         "bedrooms":  10,
+                                                         "year_built":  2006,
+                                                         "primary_image":  "https://placehold.co/800x600/e2e8f0/64748b?text=H%C3%ACnh+1"
+                                                     },
+                                                     {
+                                                         "property_id":  3254,
+                                                         "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Heidelberg Heights",
+                                                         "address":  "478 Waterdale Rd",
+                                                         "suburb":  "Heidelberg Heights",
+                                                         "price":  770000.0,
+                                                         "rooms":  8,
+                                                         "bedrooms":  8,
+                                                         "year_built":  1960,
+                                                         "primary_image":  "https://placehold.co/800x600/e2e8f0/64748b?text=H%C3%ACnh+1"
+                                                     },
+                                                     {
+                                                         "property_id":  4282,
+                                                         "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Newport",
+                                                         "address":  "487 Melbourne Rd",
+                                                         "suburb":  "Newport",
+                                                         "price":  881000.0,
+                                                         "rooms":  8,
+                                                         "bedrooms":  6,
+                                                         "year_built":  1920,
+                                                         "primary_image":  "https://placehold.co/800x600/e2e8f0/64748b?text=H%C3%ACnh+1"
+                                                     },
+                                                     {
+                                                         "property_id":  1416,
+                                                         "title":  "NhÃ  phá» 7 phÃ²ng táº¡i Brunswick West",
+                                                         "address":  "2 Henderson St",
+                                                         "suburb":  "Brunswick West",
+                                                         "price":  1205000.0,
+                                                         "rooms":  7,
+                                                         "bedrooms":  7,
+                                                         "year_built":  1982,
+                                                         "primary_image":  "https://placehold.co/800x600/e2e8f0/64748b?text=H%C3%ACnh+1"
+                                                     },
+                                                     {
+                                                         "property_id":  7224,
+                                                         "title":  "CÄn há» 6 phÃ²ng táº¡i West Footscray",
+                                                         "address":  "1/12 Hatfield Ct",
+                                                         "suburb":  "West Footscray",
+                                                         "price":  520000.0,
+                                                         "rooms":  6,
+                                                         "bedrooms":  4,
+                                                         "year_built":  1970,
+                                                         "primary_image":  "https://placehold.co/800x600/e2e8f0/64748b?text=H%C3%ACnh+1"
+                                                     }
+                                                 ],
+                                "alternative_matrix":  [
+                                                           {
+                                                               "property_id":  11299,
+                                                               "title":  "NhÃ  phá» 10 phÃ²ng táº¡i Bundoora",
+                                                               "values":  {
+                                                                              "price":  0.908581,
+                                                                              "distance":  0.747289,
+                                                                              "rooms":  1.0,
+                                                                              "bedrooms":  0.5,
+                                                                              "year_built":  0.986602
+                                                                          },
+                                                               "ahp_score":  0.849059,
+                                                               "rank":  1,
+                                                               "summary_label":  "Æ¯u tiÃªn xem"
+                                                           },
+                                                           {
+                                                               "property_id":  3254,
+                                                               "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Heidelberg Heights",
+                                                               "values":  {
+                                                                              "price":  0.923163,
+                                                                              "distance":  0.803227,
+                                                                              "rooms":  0.777778,
+                                                                              "bedrooms":  0.4,
+                                                                              "year_built":  0.930572
+                                                                          },
+                                                               "ahp_score":  0.825123,
+                                                               "rank":  2,
+                                                               "summary_label":  "Æ¯u tiÃªn xem"
+                                                           },
+                                                           {
+                                                               "property_id":  4282,
+                                                               "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Newport",
+                                                               "values":  {
+                                                                              "price":  0.910712,
+                                                                              "distance":  0.862742,
+                                                                              "rooms":  0.777778,
+                                                                              "bedrooms":  0.3,
+                                                                              "year_built":  0.881851
+                                                                          },
+                                                               "ahp_score":  0.818045,
+                                                               "rank":  3,
+                                                               "summary_label":  "Æ¯u tiÃªn xem"
+                                                           },
+                                                           {
+                                                               "property_id":  1416,
+                                                               "title":  "NhÃ  phá» 7 phÃ²ng táº¡i Brunswick West",
+                                                               "values":  {
+                                                                              "price":  0.874369,
+                                                                              "distance":  0.893452,
+                                                                              "rooms":  0.666667,
+                                                                              "bedrooms":  0.35,
+                                                                              "year_built":  0.957369
+                                                                          },
+                                                               "ahp_score":  0.806724,
+                                                               "rank":  4,
+                                                               "summary_label":  "Æ¯u tiÃªn xem"
+                                                           },
+                                                           {
+                                                               "property_id":  7224,
+                                                               "title":  "CÄn há» 6 phÃ²ng táº¡i West Footscray",
+                                                               "values":  {
+                                                                              "price":  0.951206,
+                                                                              "distance":  0.849793,
+                                                                              "rooms":  0.555556,
+                                                                              "bedrooms":  0.2,
+                                                                              "year_built":  0.942753
+                                                                          },
+                                                               "ahp_score":  0.801293,
+                                                               "rank":  5,
+                                                               "summary_label":  "Æ¯u tiÃªn xem"
+                                                           }
+                                                       ],
+                                "ranking":  [
+                                                {
+                                                    "property_id":  11299,
+                                                    "title":  "NhÃ  phá» 10 phÃ²ng táº¡i Bundoora",
+                                                    "values":  {
+                                                                   "price":  0.908581,
+                                                                   "distance":  0.747289,
+                                                                   "rooms":  1.0,
+                                                                   "bedrooms":  0.5,
+                                                                   "year_built":  0.986602
+                                                               },
+                                                    "ahp_score":  0.849059,
+                                                    "rank":  1,
+                                                    "summary_label":  "Æ¯u tiÃªn xem"
+                                                },
+                                                {
+                                                    "property_id":  3254,
+                                                    "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Heidelberg Heights",
+                                                    "values":  {
+                                                                   "price":  0.923163,
+                                                                   "distance":  0.803227,
+                                                                   "rooms":  0.777778,
+                                                                   "bedrooms":  0.4,
+                                                                   "year_built":  0.930572
+                                                               },
+                                                    "ahp_score":  0.825123,
+                                                    "rank":  2,
+                                                    "summary_label":  "Æ¯u tiÃªn xem"
+                                                },
+                                                {
+                                                    "property_id":  4282,
+                                                    "title":  "NhÃ  phá» 8 phÃ²ng táº¡i Newport",
+                                                    "values":  {
+                                                                   "price":  0.910712,
+                                                                   "distance":  0.862742,
+                                                                   "rooms":  0.777778,
+                                                                   "bedrooms":  0.3,
+                                                                   "year_built":  0.881851
+                                                               },
+                                                    "ahp_score":  0.818045,
+                                                    "rank":  3,
+                                                    "summary_label":  "Æ¯u tiÃªn xem"
+                                                },
+                                                {
+                                                    "property_id":  1416,
+                                                    "title":  "NhÃ  phá» 7 phÃ²ng táº¡i Brunswick West",
+                                                    "values":  {
+                                                                   "price":  0.874369,
+                                                                   "distance":  0.893452,
+                                                                   "rooms":  0.666667,
+                                                                   "bedrooms":  0.35,
+                                                                   "year_built":  0.957369
+                                                               },
+                                                    "ahp_score":  0.806724,
+                                                    "rank":  4,
+                                                    "summary_label":  "Æ¯u tiÃªn xem"
+                                                },
+                                                {
+                                                    "property_id":  7224,
+                                                    "title":  "CÄn há» 6 phÃ²ng táº¡i West Footscray",
+                                                    "values":  {
+                                                                   "price":  0.951206,
+                                                                   "distance":  0.849793,
+                                                                   "rooms":  0.555556,
+                                                                   "bedrooms":  0.2,
+                                                                   "year_built":  0.942753
+                                                               },
+                                                    "ahp_score":  0.801293,
+                                                    "rank":  5,
+                                                    "summary_label":  "Æ¯u tiÃªn xem"
+                                                }
+                                            ],
+                                "lambda_max":  5.651704,
+                                "ci":  0.162926,
+                                "cr":  0.14547,
+                                "is_consistent":  false,
+                                "consistency_message":  "Má»©c Äá» nháº¥t quÃ¡n chÆ°a tá»t. Báº¡n nÃªn Äiá»u chá»nh láº¡i má»t sá» giÃ¡ trá»."
+                            },
+    "weights":  {
+                    "weights":  [
+                                    {
+                                        "criteria_id":  1,
+                                        "criteria_code":  "price",
+                                        "criteria_name":  "GiÃ¡",
+                                        "weight":  0.455086
+                                    },
+                                    {
+                                        "criteria_id":  13,
+                                        "criteria_code":  "distance",
+                                        "criteria_name":  "Khoáº£ng cÃ¡ch",
+                                        "weight":  0.224783
+                                    },
+                                    {
+                                        "criteria_id":  14,
+                                        "criteria_code":  "rooms",
+                                        "criteria_name":  "Sá» phÃ²ng",
+                                        "weight":  0.124546
+                                    },
+                                    {
+                                        "criteria_id":  4,
+                                        "criteria_code":  "bedrooms",
+                                        "criteria_name":  "Sá» phÃ²ng ngá»§",
+                                        "weight":  0.102575
+                                    },
+                                    {
+                                        "criteria_id":  8,
+                                        "criteria_code":  "year_built",
+                                        "criteria_name":  "NÄm xÃ¢y dá»±ng",
+                                        "weight":  0.093011
+                                    }
+                                ],
+                    "lambda_max":  5.651704,
+                    "ci":  0.162926,
+                    "cr":  0.14547,
+                    "is_consistent":  false
+                },
+    "consistency":  {
+                        "lambda_max":  5.651704,
+                        "ci":  0.162926,
+                        "cr":  0.14547,
+                        "ri":  1.12,
+                        "is_consistent":  false,
+                        "n":  5,
+                        "message":  "Má»©c Äá» nháº¥t quÃ¡n chÆ°a tá»t. Báº¡n nÃªn Äiá»u chá»nh láº¡i má»t sá» giÃ¡ trá»."
+                    }
+}
