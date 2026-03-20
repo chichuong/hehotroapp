@@ -98,9 +98,9 @@ doan/
 - **Node.js 18+**
 - **PostgreSQL 16+**
 
-**Note: Docker is NO LONGER the supported setup path for this application.** The project must be run locally using the instructions below.
+**Note: Local development is run without Docker.** For production hosting and deployment, see the **[Production Deployment](#production-deployment-hosting)** section below.
 
-### Manual Setup
+### Local Manual Setup
 
 #### 1. Database
 
@@ -621,3 +621,37 @@ alembic upgrade head
 - Admin pages provide operational visibility only and are not a replacement for production monitoring or audit tooling.
 - Comparison results depend on available DSS, AHP, and AI data; empty fields are shown honestly when a component has not been generated yet.
 - Admin pages expect an account with `role=admin`; normal registered users are created with `role=user` by default.
+
+## Production Deployment (Hosting)
+
+This project includes configurations for two standard hosting approaches:
+
+### Option 1: VPS Deployment using Docker Compose (Recommended)
+
+To deploy the entire stack (Database, Backend, Frontend) on a standard VPS (e.g., DigitalOcean, AWS EC2, Contabo):
+
+1. Clone your repository to the VPS.
+2. Ensure Docker and Docker Compose are installed.
+3. Edit `backend/.env` with your secure production secrets.
+4. Run the production compose file:
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d --build
+   ```
+5. The application will be accessible at port `80` (you can configure a reverse proxy like Nginx Proxy Manager or Traefik in front of it for SSL).
+
+### Option 2: Serverless / PaaS (Vercel + Render)
+
+For a managed hosting experience without managing your own server:
+
+1. **Database & Backend (Render):**
+   - Connect your GitHub repository to [Render](https://render.com/).
+   - Render will automatically detect the `render.yaml` file in the root directory.
+   - It will provision a free PostgreSQL database and deploy the FastAPI backend.
+   - Note the deployed backend URL.
+
+2. **Frontend (Vercel):**
+   - Connect your GitHub repository to [Vercel](https://vercel.com/).
+   - Set the Root Directory to `frontend`.
+   - Before deploying, edit `frontend/vercel.json` to replace `<REPLACE_WITH_YOUR_BACKEND_URL>` with your actual Render backend URL (without the `https://` prefix).
+   - Change `CORS_ORIGINS` in Render environment variables to match your Vercel URL.
+   - Deploy. Vercel will build the React app and automatically proxy `/api` requests to Render.

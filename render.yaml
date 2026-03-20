@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: realestate-backend
+    env: python
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 4"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: realestate-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "https://<YOUR_VERCEL_FRONTEND_URL>"
+
+  - type: psql
+    name: realestate-db
+    databaseName: realestate_db
+    user: realestate
+    plan: free
