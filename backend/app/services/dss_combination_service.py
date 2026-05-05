@@ -234,6 +234,8 @@ def compute_dss_score_for_property(
     all_properties: Optional[List[Property]],
     normalized_features: Optional[Dict[int, Dict[str, float]]],
     scorable_codes: Optional[List[str]],
+    existing_record: Optional[PropertyDSSScore] = None,
+    valuation: Optional[PropertyValuation] = None,
 ) -> PropertyDSSScore:
     """Compute (or update) the DSS score for one property-user pair."""
 
@@ -248,7 +250,8 @@ def compute_dss_score_for_property(
             ahp_val = total_score  # already 0–1
 
     # --- AI component ---
-    valuation = get_existing_valuation(db, prop.id)
+    if valuation is None:
+        valuation = get_existing_valuation(db, prop.id)
     ai_val = _ai_gap_to_score(valuation)
 
     # --- Fit component ---
@@ -285,14 +288,17 @@ def compute_dss_score_for_property(
     )
 
     # Upsert
-    existing = (
-        db.query(PropertyDSSScore)
-        .filter(
-            PropertyDSSScore.user_id == user.id,
-            PropertyDSSScore.property_id == prop.id,
+    if existing_record is not None:
+        existing = existing_record
+    else:
+        existing = (
+            db.query(PropertyDSSScore)
+            .filter(
+                PropertyDSSScore.user_id == user.id,
+                PropertyDSSScore.property_id == prop.id,
+            )
+            .first()
         )
-        .first()
-    )
 
     if existing:
         existing.ahp_score = ahp_val
@@ -394,6 +400,12 @@ def refresh_recommendations_for_user(
 
     properties = query.all()
 
+    existing_scores = db.query(PropertyDSSScore).filter(PropertyDSSScore.user_id == user.id).all()
+    existing_dict = {score.property_id: score for score in existing_scores}
+
+    valuations = db.query(PropertyValuation).all()
+    val_dict = {v.property_id: v for v in valuations}
+
     # Pre-compute normalized features for AHP
     normalized_features = None
     if ahp_weights and scorable_codes:
@@ -405,6 +417,8 @@ def refresh_recommendations_for_user(
             db, prop, user, profile,
             ahp_weights, criteria_code_to_id,
             all_props_for_norm, normalized_features, scorable_codes,
+            existing_record=existing_dict.get(prop.id),
+            valuation=val_dict.get(prop.id)
         )
         count += 1
 

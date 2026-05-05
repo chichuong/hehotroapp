@@ -2,7 +2,7 @@ export default function Footer() {
   return (
     <footer className="bg-gray-800 text-gray-300 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <h3 className="text-white font-semibold text-lg mb-3">
             BĐS Thông Minh
@@ -28,13 +28,6 @@ export default function Footer() {
                   Danh sách bất động sản
                 </a>
               </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-3">Liên hệ</h4>
-            <ul className="space-y-2 text-sm">
-              <li>Email: info@bdsthongminh.vn</li>
-              <li>Điện thoại: (028) 1234 5678</li>
             </ul>
           </div>
         </div>

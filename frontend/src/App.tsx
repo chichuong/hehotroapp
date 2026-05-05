@@ -17,6 +17,7 @@ import ComparePage from "./pages/ComparePage";
 import DashboardPage from "./pages/DashboardPage";
 import InsightsPage from "./pages/InsightsPage";
 import AdminOverviewPage from "./pages/AdminOverviewPage";
+import ChatPage from "./pages/ChatPage";
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/properties/:id" element={<PropertyDetailPage />} />
         <Route path="/map" element={<MapPage />} />
         <Route path="/insights" element={<InsightsPage />} />
+        <Route path="/chat" element={<ChatPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route
           path="/compare"
