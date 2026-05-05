@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { chatApi, ChatResponse, ChatProperty } from '../api/chat';
+import { chatApi, ChatProperty } from '../api/chat';
 import { formatPrice } from '../utils/format';
 import { Link } from 'react-router-dom';
 
